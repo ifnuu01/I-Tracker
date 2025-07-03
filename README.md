@@ -2,6 +2,8 @@
 
 **I-Tracker** adalah aplikasi web untuk manajemen produktivitas yang memungkinkan pengguna untuk melacak kategori, topik, tugas, dan proyek secara terorganisir. Aplikasi ini dibangun menggunakan **Laravel 12** dengan **React (Inertia.js)** dan menggunakan **Tailwind CSS** untuk styling.
 
+<img src="./I-Tracker.png" alt="Gambar Web">
+
 ## 🚀 Fitur Utama
 
 ### 📈 Dashboard Analytics

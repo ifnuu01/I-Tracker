@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { type BreadcrumbItem } from '@/types'
 import { Task } from '@/types'
 import { type Topic } from '@/types'
-import { Calendar } from 'lucide-react'
 import {
     Select,
     SelectContent,
@@ -58,7 +57,7 @@ function edit() {
                     </div>
 
                     <div>
-                        <Select value={data.topic_id} onValueChange={value => setData('topic_id', value)}>
+                        <Select value={data.topic_id} onValueChange={value => setData('topic_id', value)} disabled>
                             <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select Topic" />
                             </SelectTrigger>

@@ -17,13 +17,14 @@ import { PageProps as InertiaPageProps } from '@inertiajs/core'
 interface PageProps extends InertiaPageProps {
     breadcrumbs: BreadcrumbItem[];
     topics: Topic[];
+    idTopic?: number;
 }
 
 function create() {
-    const { breadcrumbs, topics } = usePage<PageProps>().props;
+    const { breadcrumbs, topics, idTopic } = usePage<PageProps>().props;
 
     const { data, setData, post, processing, errors } = useForm({
-        topic_id: '',
+        topic_id: idTopic ? idTopic.toString() : '',
         title: '',
         note: '',
         is_done: false,
@@ -52,7 +53,7 @@ function create() {
                         {errors.title && <div className="text-red-500">{errors.title}</div>}
                     </div>
                     <div>
-                        <Select value={data.topic_id} onValueChange={value => setData('topic_id', value)}>
+                        <Select value={data.topic_id} onValueChange={value => setData('topic_id', value)} disabled>
                             <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select Topic" />
                             </SelectTrigger>

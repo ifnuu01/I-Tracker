@@ -5,9 +5,8 @@ import { PageProps as InertiaPageProps } from '@inertiajs/core'
 import { Button } from '@/components/ui/button'
 import { Link } from '@inertiajs/react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { MessageSquareQuote } from 'lucide-react';
+import { MessageSquareQuote, ExternalLink, Github, Globe } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ExternalLink, Github, Globe } from 'lucide-react'
 import { useForm } from '@inertiajs/react'
 import type { Project } from '@/types'
 

@@ -15,33 +15,57 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::with('topic')
-            ->where('user_id', Auth::id())
+        $topics = Topic::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
 
         return Inertia::render('tasks/index', [
-            'tasks' => $tasks,
+            'topics' => $topics,
             'breadcrumbs' => [
                 ['title' => 'Tasks', 'href' => route('tasks.index')],
             ],
         ]);
     }
 
+    public function detailTask($idTopic)
+    {
+        $tasks = Task::with('topic')
+            ->where('user_id', Auth::id())
+            ->where('topic_id', $idTopic)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        if ($tasks->isEmpty()) {
+            return redirect()->route('tasks.index')->with('message', 'No tasks found for this topic.');
+        }
+
+        return Inertia::render('tasks/detail', [
+            'tasks' => $tasks,
+            'breadcrumbs' => [
+                ['title' => 'Tasks', 'href' => route('tasks.index')],
+                ['title' => 'Task Details', 'href' => route('tasks.detail', $idTopic)],
+            ],
+            'idTopic' => $idTopic,
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($idTopic)
     {
+        // dd($idTopic);
         $topics = Topic::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
         return Inertia::render('tasks/create', [
             'breadcrumbs' => [
                 ['title' => 'Tasks', 'href' => route('tasks.index')],
-                ['title' => 'Create Task', 'href' => route('tasks.create')],
+                ['title' => 'Task Details', 'href' => route('tasks.detail', $idTopic)],
+                ['title' => 'Create Task', 'href' => route('tasks.create', $idTopic)],
             ],
             'topics' => $topics,
+            'idTopic' => $idTopic,
         ]);
     }
 
@@ -58,7 +82,7 @@ class TaskController extends Controller
             'is_done' => $request->is_done ?? false,
             'priority' => $request->priority ?? 'medium',
         ]);
-        return redirect()->route('tasks.index')->with('message', 'Task created successfully.');
+        return redirect()->route('tasks.detail', $request->topic_id)->with('message', 'Task created successfully.');
     }
 
     /**
@@ -89,6 +113,7 @@ class TaskController extends Controller
             'task' => $task->load('topic'),
             'breadcrumbs' => [
                 ['title' => 'Tasks', 'href' => route('tasks.index')],
+                ['title' => 'Task Details', 'href' => route('tasks.detail', $task->topic_id)],
                 ['title' => 'Edit Task', 'href' => route('tasks.edit', $task)],
             ],
             'topics' => $topics,
@@ -102,7 +127,7 @@ class TaskController extends Controller
     {
         $this->checkOwnership($task);
         $task->update($request->validated());
-        return redirect()->route('tasks.index')->with('message', 'Task updated successfully.');
+        return redirect()->route('tasks.detail', $task->topic_id)->with('message', 'Task updated successfully.');
     }
 
     /**
@@ -113,5 +138,13 @@ class TaskController extends Controller
         $this->checkOwnership($task);
         $task->delete();
         return redirect()->route('tasks.index')->with('message', 'Task deleted successfully.');
+    }
+
+    public function complated(Task $task)
+    {
+        $this->checkOwnership($task);
+        $task->is_done = true;
+        $task->save();
+        return redirect()->route('tasks.detail', $task->topic_id)->with('message', 'Task marked as completed.');
     }
 }

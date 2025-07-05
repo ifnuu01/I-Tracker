@@ -45,18 +45,25 @@ class DashboardController extends Controller
             $date = Carbon::now()->subDays($i);
             $dayName = $date->format('D');
 
-            $tasksCount = Task::where('user_id', $userId)
-                ->whereDate('created_at', $date->toDateString())
-                ->count();
+            $getActivityCount = function ($model, $additionalConditions = []) use ($userId, $date) {
+                $query = $model::where('user_id', $userId);
 
-            $completedCount = Task::where('user_id', $userId)
-                ->whereDate('created_at', $date->toDateString())
-                ->where('is_done', true)
-                ->count();
+                foreach ($additionalConditions as $condition) {
+                    $query = $query->where($condition[0], $condition[1], $condition[2] ?? null);
+                }
 
-            $projectsCount = Project::where('user_id', $userId)
-                ->whereDate('created_at', $date->toDateString())
-                ->count();
+                return $query->where(function ($q) use ($date) {
+                    $q->whereDate('created_at', $date->toDateString())
+                        ->orWhere(function ($subQ) use ($date) {
+                            $subQ->whereDate('updated_at', $date->toDateString())
+                                ->whereDate('created_at', '!=', $date->toDateString());
+                        });
+                })->count();
+            };
+
+            $tasksCount = $getActivityCount(Task::class);
+            $completedCount = $getActivityCount(Task::class, [['is_done', true]]);
+            $projectsCount = $getActivityCount(Project::class);
 
             $chartData->push([
                 'date' => $dayName,

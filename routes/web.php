@@ -16,7 +16,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('categories', CategoryController::class);
     Route::resource('topics', TopicController::class);
-    Route::resource('tasks', TaskController::class);
+    Route::resource('tasks', TaskController::class)->except(['create']);
+    Route::get('tasks/create/{idTopic}', [TaskController::class, 'create'])->name('tasks.create');
+    Route::get('tasks/detail/{idTopic}', [TaskController::class, 'detailTask'])->name('tasks.detail');
+    Route::post('tasks/{task}/complete', [TaskController::class, 'complated'])->name('tasks.complete');
     Route::resource('projects', ProjectController::class);
 });
 

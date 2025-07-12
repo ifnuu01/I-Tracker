@@ -45,31 +45,31 @@ class DashboardController extends Controller
             $date = Carbon::now()->subDays($i);
             $dayName = $date->format('D');
 
-            $getActivityCount = function ($model, $additionalConditions = []) use ($userId, $date) {
-                $query = $model::where('user_id', $userId);
-
-                foreach ($additionalConditions as $condition) {
-                    $query = $query->where($condition[0], $condition[1], $condition[2] ?? null);
-                }
-
-                return $query->where(function ($q) use ($date) {
+            $taskActivity = Task::where('user_id', $userId)
+                ->where(function ($q) use ($date) {
                     $q->whereDate('created_at', $date->toDateString())
-                        ->orWhere(function ($subQ) use ($date) {
-                            $subQ->whereDate('updated_at', $date->toDateString())
-                                ->whereDate('created_at', '!=', $date->toDateString());
-                        });
-                })->count();
-            };
+                        ->orWhereDate('updated_at', $date->toDateString());
+                })
+                ->count();
 
-            $tasksCount = $getActivityCount(Task::class);
-            $completedCount = $getActivityCount(Task::class, [['is_done', true]]);
-            $projectsCount = $getActivityCount(Project::class);
+            $completedToday = Task::where('user_id', $userId)
+                ->where('is_done', true)
+                ->whereDate('updated_at', $date->toDateString())
+                ->count();
+
+            $projectActivity = Project::where('user_id', $userId)
+                ->where(function ($q) use ($date) {
+                    $q->whereDate('created_at', $date->toDateString())
+                        ->orWhereDate('updated_at', $date->toDateString());
+                })
+                ->count();
+
 
             $chartData->push([
                 'date' => $dayName,
-                'tasks' => $tasksCount,
-                'completed' => $completedCount,
-                'projects' => $projectsCount,
+                'tasks' => $taskActivity,
+                'completed' => $completedToday,
+                'projects' => $projectActivity,
             ]);
         }
 
